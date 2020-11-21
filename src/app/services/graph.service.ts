@@ -8,6 +8,7 @@ export class GraphService {
   constructor() { }
 
   generateGraph(options){
+    
     var gradientChartOptionsConfigurationWithTooltipRed: any = {
       maintainAspectRatio: false,
       legend: {
