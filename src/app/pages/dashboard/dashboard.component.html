@@ -56,6 +56,75 @@
       </div>
     </div>
   </div> -->
+  <div class=" col-lg col-md-12">
+    <div class=" card">
+      <div class=" card-header">
+        <h4 class=" card-title">Simple Table</h4>
+      </div>
+      <div class=" card-body">
+        <div class=" table-responsive">
+          <table class=" table tablesorter" id="">
+            <thead class=" text-primary">
+              <tr>
+                <th>SensorId</th>
+                <th>City</th>
+                <th>Country</th>
+                <th>AreaCode</th>
+                <th>Type</th>
+                <th>more</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let sensor of allSensors">
+                <td>{{sensor.sensorId}}</td>
+                <td>{{sensor.location.city}}</td>
+                <td>{{sensor.location.country}}</td>
+                <td>{{sensor.location.areacode}}</td>
+                <td>{{sensor.measurement.type}}</td>
+                <td><button class="button-icon"><i class="tim-icons icon-chart-bar-32 text-success"></i></button></td>
+              </tr>
+              <!-- <tr>
+                <td>Minerva Hooper</td>
+                <td>CuraÃ§ao</td>
+                <td>Sinaai-Waas</td>
+                <td class=" text-center">$23,789</td>
+              </tr> -->
+              <!-- <tr>
+                <td>Sage Rodriguez</td>
+                <td>Netherlands</td>
+                <td>Baileux</td>
+                <td class=" text-center">$56,142</td>
+              </tr> -->
+              <!-- <tr>
+                <td>Philip Chaney</td>
+                <td>Korea, South</td>
+                <td>Overland Park</td>
+                <td class=" text-center">$38,735</td>
+              </tr> -->
+              <!-- <tr>
+                <td>Doris Greene</td>
+                <td>Malawi</td>
+                <td>Feldkirchen in KÃ¤rnten</td>
+                <td class=" text-center">$63,542</td>
+              </tr> -->
+              <!-- <tr>
+                <td>Mason Porter</td>
+                <td>Chile</td>
+                <td>Gloucester</td>
+                <td class=" text-center">$78,615</td>
+              </tr> -->
+              <!-- <tr>
+                <td>Jon Porter</td>
+                <td>Portugal</td>
+                <td>Gloucester</td>
+                <td class=" text-center">$98,615</td>
+              </tr> -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class=" row">
     <div class=" col-12">
@@ -71,7 +140,7 @@
                 class=" btn-group btn-group-toggle float-right"
                 data-toggle="buttons"
               >
-                <label class=" btn btn-sm btn-danger btn-simple" (click)="data=datasets[0];updateOptions();clicked=true;clicked1=false;clicked2=false" [ngClass]="{'active':clicked===true}">
+                <label class=" btn btn-sm btn-danger btn-simple" (click)="data=datasets[0];syncAll();updateOptions();clicked=true;clicked1=false;clicked2=false" [ngClass]="{'active':clicked===true}">
                   <input checked="checked" name="options" type="radio" />
 
                   <span
@@ -121,72 +190,6 @@
       </div>
     </div>
   </div>
-  <div class=" col-lg col-md-12">
-    <div class=" card">
-      <div class=" card-header">
-        <h4 class=" card-title">Simple Table</h4>
-      </div>
-      <div class=" card-body">
-        <div class=" table-responsive">
-          <table class=" table tablesorter" id="">
-            <thead class=" text-primary">
-              <tr>
-                <th>Name</th>
-                <th>Country</th>
-                <th>City</th>
-                <th class=" text-center">Salary</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Dakota Rice</td>
-                <td>Niger</td>
-                <td>Oud-Turnhout</td>
-                <td class=" text-center">$36,738</td>
-              </tr>
-              <tr>
-                <td>Minerva Hooper</td>
-                <td>CuraÃ§ao</td>
-                <td>Sinaai-Waas</td>
-                <td class=" text-center">$23,789</td>
-              </tr>
-              <tr>
-                <td>Sage Rodriguez</td>
-                <td>Netherlands</td>
-                <td>Baileux</td>
-                <td class=" text-center">$56,142</td>
-              </tr>
-              <tr>
-                <td>Philip Chaney</td>
-                <td>Korea, South</td>
-                <td>Overland Park</td>
-                <td class=" text-center">$38,735</td>
-              </tr>
-              <tr>
-                <td>Doris Greene</td>
-                <td>Malawi</td>
-                <td>Feldkirchen in KÃ¤rnten</td>
-                <td class=" text-center">$63,542</td>
-              </tr>
-              <tr>
-                <td>Mason Porter</td>
-                <td>Chile</td>
-                <td>Gloucester</td>
-                <td class=" text-center">$78,615</td>
-              </tr>
-              <tr>
-                <td>Jon Porter</td>
-                <td>Portugal</td>
-                <td>Gloucester</td>
-                <td class=" text-center">$98,615</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
 
 </div>
 
