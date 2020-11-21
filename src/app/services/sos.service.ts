@@ -3,42 +3,43 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { Sensor } from '../models/Sensor';
-import { Location } from '../models/Location';
-import { Measurement } from '../models/Measurement';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SOSService {
 
-  url: string = "https://backendsos.herokuapp.com/";
+  private _url: string = "https://backendsos.herokuapp.com";
+  data = [];
   constructor(private _http: HttpClient) { }
 
-  getAllLocations(): Observable<Location[]>{
-    return this._http.get<Location[]>(this.url + 'location/all')
-    .pipe(
-      retry(3),
-      catchError(this.errorHandler));
+  getAllLocations() {
+    const promise = new Promise((resolve, reject) => {
+      this._http.get<any>(this._url + "/location/all").toPromise()
+        .then(res => resolve(res), error => reject(error));
+   });
+   return promise;
   }
 
-  getAllMeasurements(): Observable<Measurement[]>{
-    return this._http.get<Measurement[]>(this.url + 'measurement/all')
-    .pipe(
-      retry(3),
-      catchError(this.errorHandler));
-  }
+  getAllMeasurements() {
+    const promise = new Promise((resolve, reject) => {
+       this._http.get<any>(this._url + "/measurement/all").toPromise()
+         .then(res => resolve(res), error => reject(error));
+    });
+    return promise;
+   }
 
-
-  getAllSensors(): Observable<Sensor[]>{
-    return this._http.get<Sensor[]>(this.url + 'sensor/all')
-    .pipe(
-      retry(3),
-      catchError(this.errorHandler));
+  getAllSensors() {
+   const promise = new Promise((resolve, reject) => {
+      this._http.get<any>(this._url + "/sensor/all").toPromise()
+        .then(res => resolve(res.payload), error => reject(error));
+   });
+   return promise;
   }
 
   getSensorsByCity(options): Observable<Sensor[]>{
     const city = options.city;
-    return this._http.get<Sensor[]>(this.url + 'sensor/city/' + city)
+    return this._http.get<Sensor[]>(this._url + '/sensor/city/' + city)
     .pipe(
       retry(3),
       catchError(this.errorHandler));
@@ -46,7 +47,7 @@ export class SOSService {
 
   getSensorById(options): Observable<Sensor>{
     const id = options.id;
-    return this._http.get<Sensor>(this.url + 'sensor/id/' + id)
+    return this._http.get<Sensor>(this._url + '/sensor/id/' + id)
     .pipe(
       retry(3),
       catchError(this.errorHandler));
@@ -54,7 +55,7 @@ export class SOSService {
 
   getSensorByRegion(options): Observable<Sensor[]>{
     const region = options.region;
-    return this._http.get<Sensor[]>(this.url + 'sensor/region/' + region)
+    return this._http.get<Sensor[]>(this._url + '/sensor/region/' + region)
     .pipe(
       retry(3),
       catchError(this.errorHandler));
