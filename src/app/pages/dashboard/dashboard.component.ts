@@ -1,14 +1,12 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from "@angular/core";
 import Chart from 'chart.js';
-import { catchError, retry } from 'rxjs/operators';
 import { AggregatedTimeSeries } from 'src/app/models/AggregatedTimeSeries';
 import { LocationResponse } from 'src/app/models/LocationResponse';
 import { Measurement } from 'src/app/models/Measurement';
 import { MeasurementResponse } from 'src/app/models/MeasurementReponse';
 import { Sensor } from 'src/app/models/Sensor';
 import { SensorResponse } from 'src/app/models/SensorResponse';
-import { TimeSeries } from 'src/app/models/TimeSeries';
+import { GraphService } from 'src/app/services/graph.service';
 import { SOSService } from 'src/app/services/sos.service';
 
 @Component({
@@ -21,9 +19,12 @@ export class DashboardComponent implements OnInit {
   public datasets: any;
   public data: any;
   public myChartData;
+
   public clicked: boolean = true;
   public clicked1: boolean = false;
   public clicked2: boolean = false;
+  public clicked3: boolean = false;
+  public clicked4: boolean = false;
 
   public allSensors: Sensor[];
   public allLocations: Location[];
@@ -31,68 +32,21 @@ export class DashboardComponent implements OnInit {
 
  ;
 
-  constructor(private _sosService: SOSService) {}
+  constructor(private _sosService: SOSService, private _graphService: GraphService) {}
 
  async ngOnInit() {
 
     await this.syncAll();
-
     await this.updateTable();
+    
+    var graphOptions = {
+      min: 60,
+      max: 20,
+      paddingX: 20,
+      paddingY: 20
+    }
 
-    var gradientChartOptionsConfigurationWithTooltipRed: any = {
-      maintainAspectRatio: false,
-      legend: {
-        display: false
-      },
-
-      tooltips: {
-        backgroundColor: '#f5f5f5',
-        titleFontColor: '#333',
-        bodyFontColor: '#666',
-        bodySpacing: 4,
-        xPadding: 12,
-        mode: "nearest",
-        intersect: 0,
-        position: "nearest"
-      },
-      responsive: true,
-      scales: {
-        yAxes: [{
-          barPercentage: 1.6,
-          gridLines: {
-            drawBorder: false,
-            color: 'rgba(29,140,248,0.0)',
-            zeroLineColor: "transparent",
-          },
-          ticks: {
-            suggestedMin: 60,
-            suggestedMax: 125,
-            padding: 20,
-            fontColor: "#9a9a9a"
-          }
-        }],
-
-        xAxes: [{
-          barPercentage: 1.6,
-          gridLines: {
-            drawBorder: false,
-            color: 'rgba(233,32,16,0.1)',
-            zeroLineColor: "transparent",
-          },
-          ticks: {
-            padding: 20,
-            fontColor: "#9a9a9a"
-          }
-        }]
-      }
-    };
-    var chart_labels = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-    this.datasets = [
-      [100, 70, 90, 70, 85, 60, 75, 60, 90, 80, 110, 100],
-      [80, 120, 105, 110, 95, 105, 90, 100, 80, 95, 70, 120],
-      [60, 80, 65, 130, 80, 105, 90, 130, 70, 115, 60, 130]
-    ];
-    this.data = this.datasets[0];
+    var gradientChartOptionsConfigurationWithTooltipRed = this._graphService.generateGraph(graphOptions);
 
     this.canvas = document.getElementById("chartBig1");
     this.ctx = this.canvas.getContext("2d");
@@ -103,30 +57,21 @@ export class DashboardComponent implements OnInit {
     gradientStroke.addColorStop(0.4, 'rgba(233,32,16,0.0)');
     gradientStroke.addColorStop(0, 'rgba(233,32,16,0)'); //red colors
 
-    var config = {
-      type: 'line',
-      data: {
-        labels: chart_labels,
-        datasets: [{
-          label: "My First dataset",
-          fill: true,
-          backgroundColor: gradientStroke,
-          borderColor: '#ec250d',
-          borderWidth: 2,
-          borderDash: [],
-          borderDashOffset: 0.0,
-          pointBackgroundColor: '#ec250d',
-          pointBorderColor: 'rgba(255,255,255,0)',
-          pointHoverBackgroundColor: '#ec250d',
-          pointBorderWidth: 20,
-          pointHoverRadius: 4,
-          pointHoverBorderWidth: 15,
-          pointRadius: 4,
-          data: this.data,
-        }]
-      },
-      options: gradientChartOptionsConfigurationWithTooltipRed
-    };
+    var chart_labels = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    this.datasets = [
+      [100, 70, 90, 70, 85, 60, 75, 60, 90, 80, 110, 100],
+      [80, 120, 105, 110, 95, 105, 90, 100, 80, 95, 70, 120],
+      [60, 80, 65, 130, 80, 105, 90, 130, 70, 115, 60, 130]
+    ];
+    this.data = this.datasets[0];
+
+    const options = {
+      chart_labels: chart_labels,
+      gradientStroke: gradientStroke,
+      data: this.data
+    }
+
+    var config = this._graphService.generateGraphConfig(gradientChartOptionsConfigurationWithTooltipRed, options);
     this.myChartData = new Chart(this.ctx, config);
   }
 
@@ -176,7 +121,10 @@ export class DashboardComponent implements OnInit {
     // console.log(sensor3.payload);
   }
 
+  getChartData(){
+
+  }
+
   updateTable(){
-    const data = this.allSensors;
   }
 }
