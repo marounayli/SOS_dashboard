@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from "@angular/core";
 import Chart from 'chart.js';
 import { catchError, retry } from 'rxjs/operators';
-import { Post } from 'src/app/models/Post';
 import { Sensor } from 'src/app/models/Sensor';
 import { SensorResponse } from 'src/app/models/SensorResponse';
 import { SOSService } from 'src/app/services/sos.service';
