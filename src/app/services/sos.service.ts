@@ -1,8 +1,11 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
-import { Sensor } from '../models/Sensor';
+import { throwError } from 'rxjs';
+import { AggregatedTimeSeries } from '../models/AggregatedTimeSeries';
+import { LocationResponse } from '../models/LocationResponse';
+import { MeasurementResponse } from '../models/MeasurementReponse';
+import { SensorResponse } from '../models/SensorResponse';
+import { TimeSeries } from '../models/TimeSeries';
 
 @Injectable({
   providedIn: 'root'
@@ -13,52 +16,81 @@ export class SOSService {
   data = [];
   constructor(private _http: HttpClient) { }
 
-  getAllLocations() {
-    const promise = new Promise((resolve, reject) => {
-      this._http.get<any>(this._url + "/location/all").toPromise()
+  getAllLocations(): Promise<LocationResponse>{
+    const promise = new Promise<LocationResponse>((resolve, reject) => {
+      this._http.get<LocationResponse>(this._url + "/location/all").toPromise()
         .then(res => resolve(res), error => reject(error));
    });
    return promise;
   }
 
-  getAllMeasurements() {
-    const promise = new Promise((resolve, reject) => {
-       this._http.get<any>(this._url + "/measurement/all").toPromise()
+  getAllMeasurements(): Promise<MeasurementResponse> {
+    const promise = new Promise<MeasurementResponse>((resolve, reject) => {
+       this._http.get<MeasurementResponse>(this._url + "/measurement/all").toPromise()
          .then(res => resolve(res), error => reject(error));
     });
     return promise;
    }
 
-  getAllSensors() {
-   const promise = new Promise((resolve, reject) => {
-      this._http.get<any>(this._url + "/sensor/all").toPromise()
-        .then(res => resolve(res.payload), error => reject(error));
+  getAllSensors(): Promise<SensorResponse> {
+   const promise = new Promise<SensorResponse>((resolve, reject) => {
+      this._http.get<SensorResponse>(this._url + "/sensor/all").toPromise()
+        .then(res => resolve(res), error => reject(error));
    });
    return promise;
   }
 
-  getSensorsByCity(options): Observable<Sensor[]>{
+  getSensorsByCity(options){
     const city = options.city;
-    return this._http.get<Sensor[]>(this._url + '/sensor/city/' + city)
-    .pipe(
-      retry(3),
-      catchError(this.errorHandler));
+    const promise = new Promise((resolve, reject) => {
+      this._http.get<any>(this._url + '/sensor/city/' + city).toPromise()
+        .then(res => resolve(res), error => reject(error));
+    })
+    
+    return promise;
   }
 
-  getSensorById(options): Observable<Sensor>{
+  getSensorById(options) {
     const id = options.id;
-    return this._http.get<Sensor>(this._url + '/sensor/id/' + id)
-    .pipe(
-      retry(3),
-      catchError(this.errorHandler));
+    const promise = new Promise((resolve, reject) => {
+      this._http.get<any>(this._url + '/sensor/id/' + id).toPromise()
+        .then(res => resolve(res.payload), error => reject(error));
+    });
+
+    return promise;
   }
 
-  getSensorByRegion(options): Observable<Sensor[]>{
+  getSensorByRegion(options){
     const region = options.region;
-    return this._http.get<Sensor[]>(this._url + '/sensor/region/' + region)
-    .pipe(
-      retry(3),
-      catchError(this.errorHandler));
+    const promise = new Promise((resolve, reject) => {
+      this._http.get<any>(this._url + '/sensor/region/' + region).toPromise()
+        .then(res => resolve(res.payload), error => reject(error));
+    });
+
+    return promise;
+  }
+
+  getTimeSeriesBySensorId(options): Promise<TimeSeries[]>{
+    const id = options.id;
+    const promise = new Promise<TimeSeries[]>((resolve, reject) => {
+      this._http.get<TimeSeries[]>(this._url + "/ts/sensId/" + id).toPromise()
+        .then(res => resolve(res), error => reject(error));
+    });
+
+    return promise;
+  }
+
+  getAggregation(options): Promise<AggregatedTimeSeries[]>{
+    const id = options.id;
+    const size = options.size;
+    const type = options.type; 
+
+    const promise = new Promise<AggregatedTimeSeries[]>((resolve, reject) => {
+      this._http.get<AggregatedTimeSeries[]>(this._url + "/ts/" + type + "/sensId/" + id + "/" + size).toPromise()
+        .then(res => resolve(res), error => reject(error));
+    });
+
+    return promise;
   }
 
   errorHandler(error: HttpErrorResponse){
