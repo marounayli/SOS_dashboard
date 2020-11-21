@@ -2,8 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from "@angular/core";
 import Chart from 'chart.js';
 import { catchError, retry } from 'rxjs/operators';
+import { AggregatedTimeSeries } from 'src/app/models/AggregatedTimeSeries';
+import { LocationResponse } from 'src/app/models/LocationResponse';
+import { Measurement } from 'src/app/models/Measurement';
+import { MeasurementResponse } from 'src/app/models/MeasurementReponse';
 import { Sensor } from 'src/app/models/Sensor';
 import { SensorResponse } from 'src/app/models/SensorResponse';
+import { TimeSeries } from 'src/app/models/TimeSeries';
 import { SOSService } from 'src/app/services/sos.service';
 
 @Component({
@@ -19,9 +24,10 @@ export class DashboardComponent implements OnInit {
   public clicked: boolean = true;
   public clicked1: boolean = false;
   public clicked2: boolean = false;
-  public allSensors: any;
-  public allLocations: any;
-  public allMeasurements: any;
+
+  public allSensors: Sensor[];
+  public allLocations: Location[];
+  public allMeasurements: Measurement[];
 
  ;
 
@@ -130,25 +136,44 @@ export class DashboardComponent implements OnInit {
   }
 
   async getAllSensors(){
-    this.allSensors = await this._sosService.getAllSensors();
-
-    console.log((Object.keys(this.allSensors[0])));
+    let res: SensorResponse;
+    res = await this._sosService.getAllSensors();
+    this.allSensors = res.payload;
+    // console.log((Object.keys(this.allSensors[0])));
   }
 
   async getAllLocations(){
-    this.allLocations = await this._sosService.getAllLocations();
+    let res: LocationResponse;
+    res = await this._sosService.getAllLocations();
+    this.allLocations = res.payload;
     // console.log(this.allLocations);
   }
 
   async getAllMeasurements(){
-    this.allLocations = await this._sosService.getAllMeasurements();
-    // console.log(this.allLocations);
+    let res: MeasurementResponse;
+    res = await this._sosService.getAllMeasurements();
+    this.allMeasurements = res.payload;
+    // console.log(this.allMeasurements);
   }
 
   async syncAll(){
     await this.getAllSensors();
     await this.getAllLocations();
     await this.getAllMeasurements();
+  }
+
+  async printData(){
+
+
+    let sensor1: AggregatedTimeSeries[];
+    sensor1 = await this._sosService.getAggregation({id: 1, size:3, type:'prod'});
+    console.log(sensor1);
+    // sensor2 = await this._sosService.getSensorByRegion({region: 'Kfardebian'});
+    // sensor3 = await this._sosService.getSensorsByCity({city: 'Faraya'});
+
+    // console.log(sensor1.payload);
+    // console.log(sensor2.payload);
+    // console.log(sensor3.payload);
   }
 
   updateTable(){
