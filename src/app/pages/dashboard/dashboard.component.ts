@@ -6,6 +6,7 @@ import { Measurement } from 'src/app/models/Measurement';
 import { MeasurementResponse } from 'src/app/models/MeasurementReponse';
 import { Sensor } from 'src/app/models/Sensor';
 import { SensorResponse } from 'src/app/models/SensorResponse';
+import { TimeSeries } from 'src/app/models/TimeSeries';
 import { GraphService } from 'src/app/services/graph.service';
 import { SOSService } from 'src/app/services/sos.service';
 
@@ -16,28 +17,44 @@ import { SOSService } from 'src/app/services/sos.service';
 export class DashboardComponent implements OnInit {
   public canvas : any;
   public ctx;
-  public datasets: any;
+  public datasets: any = [
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+  ]
   public data: any;
   public myChartData;
 
-  public clicked: boolean = true;
+  public typesMap = {
+      "all": 0,
+      "min": 1,
+      "max": 2,
+      "avg": 3,
+      "range": 4,
+      "sum": 5
+  }
+
+  public clicked0: boolean = true;
+  public clicked: boolean = false;
   public clicked1: boolean = false;
   public clicked2: boolean = false;
   public clicked3: boolean = false;
   public clicked4: boolean = false;
 
+  public plotClicked: boolean = false;
+
   public allSensors: Sensor[];
   public allLocations: Location[];
   public allMeasurements: Measurement[];
-
- ;
 
   constructor(private _sosService: SOSService, private _graphService: GraphService) {}
 
  async ngOnInit() {
 
     await this.syncAll();
-    await this.updateTable();
     
     var graphOptions = {
       min: 60,
@@ -58,11 +75,12 @@ export class DashboardComponent implements OnInit {
     gradientStroke.addColorStop(0, 'rgba(233,32,16,0)'); //red colors
 
     var chart_labels = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-    this.datasets = [
-      [100, 70, 90, 70, 85, 60, 75, 60, 90, 80, 110, 100],
-      [80, 120, 105, 110, 95, 105, 90, 100, 80, 95, 70, 120],
-      [60, 80, 65, 130, 80, 105, 90, 130, 70, 115, 60, 130]
-    ];
+    // this.datasets = [
+    //  this.datasets[0] = [100, 70, 90, 70, 85, 60, 90, 100, 80, 95, 70, 120];
+    //  this.datasets[1] = [80, 120, 105, 110, 95, 105, 90, 100, 80, 95, 70, 120];
+    //  this.datasets[2] = [60, 80, 65, 130, 80, 105, 90, 130, 70, 115, 60, 130];
+    //  this.datasets[3] = []
+    // ];
     this.data = this.datasets[0];
 
     const options = {
@@ -75,8 +93,16 @@ export class DashboardComponent implements OnInit {
     this.myChartData = new Chart(this.ctx, config);
   }
 
-  public updateOptions() {
+  public updateOptions(nb) {
+    this.data = this.datasets[nb];
+
+    const max = Math.max.apply(Math, this.data);
+    const min = Math.min.apply(Math, this.data);
+
     this.myChartData.data.datasets[0].data = this.data;
+    this.myChartData.options.scales.yAxes[0].ticks.suggestedMax = max;
+    this.myChartData.options.scales.yAxes[0].ticks.suggestedMin = min;
+    
     this.myChartData.update();
   }
 
@@ -101,30 +127,39 @@ export class DashboardComponent implements OnInit {
     // console.log(this.allMeasurements);
   }
 
+  async getAggregatedData(options, index){
+    let res: AggregatedTimeSeries[];
+    let response = await this._sosService.getAggregation(options);
+    res = response.payload;
+    this.datasets[index] = res.map(sensorData => sensorData.aggregationValue);
+  }
+
+  async getSensorData(id){
+    
+    for(const [key, value] of Object.entries(this.typesMap)){
+      if(value === 0) continue;
+      var options = {
+        type: key,
+        size: 5,
+        id: id
+      }
+
+      await this.getAggregatedData(options, value);
+      // this.updateOptions(value);
+    }
+  }
+
+  async getAllSensorData(id){
+    let res: TimeSeries[];
+    let response = await this._sosService.getTimeSeriesBySensorId({id: id});
+    res = response.payload;
+    this.datasets[0] = res.map(sensorData => sensorData.measurementValue);
+    this.updateOptions(0);
+  }
+
   async syncAll(){
     await this.getAllSensors();
-    await this.getAllLocations();
-    await this.getAllMeasurements();
-  }
-
-  async printData(){
-
-
-    let sensor1: AggregatedTimeSeries[];
-    sensor1 = await this._sosService.getAggregation({id: 1, size:3, type:'prod'});
-    console.log(sensor1);
-    // sensor2 = await this._sosService.getSensorByRegion({region: 'Kfardebian'});
-    // sensor3 = await this._sosService.getSensorsByCity({city: 'Faraya'});
-
-    // console.log(sensor1.payload);
-    // console.log(sensor2.payload);
-    // console.log(sensor3.payload);
-  }
-
-  getChartData(){
-
-  }
-
-  updateTable(){
+    // await this.getAllLocations();
+    // await this.getAllMeasurements();
   }
 }
