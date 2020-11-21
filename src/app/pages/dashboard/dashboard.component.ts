@@ -1,5 +1,10 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from "@angular/core";
 import Chart from 'chart.js';
+import { catchError, retry } from 'rxjs/operators';
+import { Post } from 'src/app/models/Post';
+import { Sensor } from 'src/app/models/Sensor';
+import { SensorResponse } from 'src/app/models/SensorResponse';
 import { SOSService } from 'src/app/services/sos.service';
 
 @Component({
@@ -15,12 +20,19 @@ export class DashboardComponent implements OnInit {
   public clicked: boolean = true;
   public clicked1: boolean = false;
   public clicked2: boolean = false;
+  public allSensors: any;
+  public allLocations: any;
+  public allMeasurements: any;
 
+ ;
 
-  public testData: any[];
   constructor(private _sosService: SOSService) {}
 
-  ngOnInit() {
+ async ngOnInit() {
+
+    await this.syncAll();
+
+    await this.updateTable();
 
     var gradientChartOptionsConfigurationWithTooltipRed: any = {
       maintainAspectRatio: false,
@@ -69,23 +81,6 @@ export class DashboardComponent implements OnInit {
         }]
       }
     };
-
-   
-    // this.canvas = document.getElementById("chartLineRed");
-    // this.ctx = this.canvas.getContext("2d");
-
-    // var gradientStroke = this.ctx.createLinearGradient(0, 230, 0, 50);
-
-    // gradientStroke.addColorStop(1, 'rgba(233,32,16,0.2)');
-    // gradientStroke.addColorStop(0.4, 'rgba(233,32,16,0.0)');
-    // gradientStroke.addColorStop(0, 'rgba(233,32,16,0)'); //red colors
-
-    // this.canvas = document.getElementById("chartLineGreen");
-    // this.ctx = this.canvas.getContext("2d");
-
-
-    // var gradientStroke = this.ctx.createLinearGradient(0, 230, 0, 50);
-
     var chart_labels = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
     this.datasets = [
       [100, 70, 90, 70, 85, 60, 75, 60, 90, 80, 110, 100],
@@ -93,8 +88,6 @@ export class DashboardComponent implements OnInit {
       [60, 80, 65, 130, 80, 105, 90, 130, 70, 115, 60, 130]
     ];
     this.data = this.datasets[0];
-
-
 
     this.canvas = document.getElementById("chartBig1");
     this.ctx = this.canvas.getContext("2d");
@@ -131,15 +124,35 @@ export class DashboardComponent implements OnInit {
     };
     this.myChartData = new Chart(this.ctx, config);
   }
+
   public updateOptions() {
     this.myChartData.data.datasets[0].data = this.data;
     this.myChartData.update();
   }
 
-  // public async printData(){
-    
-  //   await this._sosService.getSensorByRegion({region: 'Kfardebian'}).subscribe(data => this.testData = data);
+  async getAllSensors(){
+    this.allSensors = await this._sosService.getAllSensors();
 
-  //   console.log(this.testData);
-  // }
+    console.log((Object.keys(this.allSensors[0])));
+  }
+
+  async getAllLocations(){
+    this.allLocations = await this._sosService.getAllLocations();
+    // console.log(this.allLocations);
+  }
+
+  async getAllMeasurements(){
+    this.allLocations = await this._sosService.getAllMeasurements();
+    // console.log(this.allLocations);
+  }
+
+  async syncAll(){
+    await this.getAllSensors();
+    await this.getAllLocations();
+    await this.getAllMeasurements();
+  }
+
+  updateTable(){
+    const data = this.allSensors;
+  }
 }
