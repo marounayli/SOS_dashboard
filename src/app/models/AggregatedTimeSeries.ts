@@ -1,5 +1,5 @@
 export interface AggregatedTimeSeries{
-    lowData: Date,
+    lowDate: Date,
     highDate: Date, 
     aggregationValue: number
 }
