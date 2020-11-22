@@ -66,7 +66,7 @@ export class GraphService {
       data: {
         labels: options.chart_labels,
         datasets: [{
-          label: "My First dataset",
+          label: '',
           fill: true,
           backgroundColor: options.gradientStroke,
           borderColor: '#ec250d',
