@@ -7,6 +7,7 @@ import { MeasurementResponse } from 'src/app/models/MeasurementReponse';
 import { Sensor } from 'src/app/models/Sensor';
 import { SensorResponse } from 'src/app/models/SensorResponse';
 import { TimeSeries } from 'src/app/models/TimeSeries';
+import { DateService } from 'src/app/services/date.service';
 import { GraphService } from 'src/app/services/graph.service';
 import { SOSService } from 'src/app/services/sos.service';
 
@@ -27,6 +28,14 @@ export class DashboardComponent implements OnInit {
   ]
   public data: any;
   public myChartData;
+  public chartLabels: any = [
+    [],
+    [],
+    [],
+    [],
+    [],
+    []
+  ]
 
   public typesMap = {
       "all": 0,
@@ -45,12 +54,13 @@ export class DashboardComponent implements OnInit {
   public clicked4: boolean = false;
 
   public plotClicked: boolean = false;
+  public clickedSensor: number;
 
   public allSensors: Sensor[];
   public allLocations: Location[];
   public allMeasurements: Measurement[];
 
-  constructor(private _sosService: SOSService, private _graphService: GraphService) {}
+  constructor(private _sosService: SOSService, private _graphService: GraphService, private _dateService: DateService) {}
 
  async ngOnInit() {
 
@@ -98,11 +108,13 @@ export class DashboardComponent implements OnInit {
 
     const max = Math.max.apply(Math, this.data);
     const min = Math.min.apply(Math, this.data);
+    const title = Object.keys(this.typesMap).find(key => this.typesMap[key] === nb);
 
     this.myChartData.data.datasets[0].data = this.data;
+    this.myChartData.config.data.labels = this.chartLabels[nb];
     this.myChartData.options.scales.yAxes[0].ticks.suggestedMax = max;
     this.myChartData.options.scales.yAxes[0].ticks.suggestedMin = min;
-    
+    this.myChartData.config.data.datasets[0].label = title + " chart";
     this.myChartData.update();
   }
 
@@ -110,21 +122,18 @@ export class DashboardComponent implements OnInit {
     let res: SensorResponse;
     res = await this._sosService.getAllSensors();
     this.allSensors = res.payload;
-    // console.log((Object.keys(this.allSensors[0])));
   }
 
   async getAllLocations(){
     let res: LocationResponse;
     res = await this._sosService.getAllLocations();
     this.allLocations = res.payload;
-    // console.log(this.allLocations);
   }
 
   async getAllMeasurements(){
     let res: MeasurementResponse;
     res = await this._sosService.getAllMeasurements();
     this.allMeasurements = res.payload;
-    // console.log(this.allMeasurements);
   }
 
   async getAggregatedData(options, index){
@@ -132,6 +141,8 @@ export class DashboardComponent implements OnInit {
     let response = await this._sosService.getAggregation(options);
     res = response.payload;
     this.datasets[index] = res.map(sensorData => sensorData.aggregationValue);
+    this.chartLabels[index] = res.map(sensorData => this._dateService.handleAggregationDate(sensorData.lowDate, sensorData.highDate));
+
   }
 
   async getSensorData(id){
@@ -140,12 +151,11 @@ export class DashboardComponent implements OnInit {
       if(value === 0) continue;
       var options = {
         type: key,
-        size: 5,
+        size: 2,
         id: id
       }
 
       await this.getAggregatedData(options, value);
-      // this.updateOptions(value);
     }
   }
 
@@ -154,12 +164,13 @@ export class DashboardComponent implements OnInit {
     let response = await this._sosService.getTimeSeriesBySensorId({id: id});
     res = response.payload;
     this.datasets[0] = res.map(sensorData => sensorData.measurementValue);
+    this.chartLabels[0] = res.map(sensorData =>  this._dateService.convertDate(sensorData.measurementDate));
     this.updateOptions(0);
   }
 
   async syncAll(){
     await this.getAllSensors();
-    // await this.getAllLocations();
-    // await this.getAllMeasurements();
   }
+
+
 }

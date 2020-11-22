@@ -81,7 +81,7 @@
                 <td>{{sensor.location.country}}</td>
                 <td>{{sensor.location.areacode}}</td>
                 <td>{{sensor.measurement.type}}</td>
-                <td><button class="btn" (click)="getAllSensorData(sensor.sensorId);getSensorData(sensor.sensorId);plotClicked=true" style="cursor: pointer;"><i class="tim-icons icon-chart-bar-32 text-success"></i></button></td>
+                <td><button class="btn" (click)="getAllSensorData(sensor.sensorId);getSensorData(sensor.sensorId);plotClicked=true; clickedSensor=sensor.sensorId" style="cursor: pointer;"><i class="tim-icons icon-chart-bar-32 text-success"></i></button></td>
               </tr>
             </tbody>
           </table>
@@ -97,7 +97,7 @@
           <div class=" row">
             <div class=" col-sm-6 text-left">
               <h5 class=" card-category">Aggregations</h5>
-              <h2 class=" card-title">Sensor Data</h2>
+              <h2 class=" card-title">Sensor {{clickedSensor}} Data</h2>
             </div>
             <div class=" col-sm-6">
               <div
@@ -213,8 +213,18 @@
               <h5 class=" card-category">Aggregations</h5>
               <h2 class=" card-title">Aggregation Type</h2>
             </div>
-            <!-- <div class="card-body"> -->
-            <!-- </div> -->
+            <div class="card-body">
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Dropdown
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                  <button class="dropdown-item" type="button">Action</button>
+                  <button class="dropdown-item" type="button">Another action</button>
+                  <button class="dropdown-item" type="button">Something else here</button>
+                </div>
+              </div>
+            </div>
         </div>
       </div>
     </div>
