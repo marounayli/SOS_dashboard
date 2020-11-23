@@ -1,13 +1,10 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { throwError } from 'rxjs';
-import { AggregatedTimeSeries } from '../models/AggregatedTimeSeries';
-import { AggregatedTimeSeriesResponse } from '../models/AggregatedTimeSeriesResponse';
+import { AggragationResponse } from '../models/AggregationResponse';
 import { LocationResponse } from '../models/LocationResponse';
 import { MeasurementResponse } from '../models/MeasurementReponse';
 import { SensorResponse } from '../models/SensorResponse';
-import { TimeSeries } from '../models/TimeSeries';
-import { TimeSeriesResponse } from '../models/TimeSeriesResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -72,30 +69,39 @@ export class SOSService {
     return promise;
   }
 
-  getTimeSeriesBySensorId(options): Promise<TimeSeriesResponse>{
-    const id = options.id;
-    const promise = new Promise<TimeSeriesResponse>((resolve, reject) => {
-      this._http.get<TimeSeriesResponse>(this._url + "/ts/sensId/" + id).toPromise()
+  // getTimeSeriesBySensorId(options): Promise<TimeSeriesResponse>{
+  //   const id = options.id;
+  //   const promise = new Promise<TimeSeriesResponse>((resolve, reject) => {
+  //     this._http.get<TimeSeriesResponse>(this._url + "/ts/sensId/" + id).toPromise()
+  //       .then(res => resolve(res), error => reject(error));
+  //   });
+
+  //   return promise;
+  // }
+
+  // getAggregation(options): Promise<AggregatedTimeSeriesResponse>{
+  //   const id = options.id;
+  //   const size = options.size;
+  //   const type = options.type; 
+
+  //   const promise = new Promise<AggregatedTimeSeriesResponse>((resolve, reject) => {
+  //     this._http.get<AggregatedTimeSeriesResponse>(this._url + "/ts/" + type + "/sensId/" + id + "/" + size).toPromise()
+  //       .then(res => resolve(res), error => reject(error));
+  //   });
+
+  //   return promise;
+  // }
+
+  getSensorAggregations(options): Promise<AggragationResponse>{
+
+    const promise = new Promise<AggragationResponse>((resolve, reject) => {
+      this._http.post<AggragationResponse>(this._url + "/ts/aggregations", options).toPromise()
         .then(res => resolve(res), error => reject(error));
     });
 
     return promise;
   }
 
-  getAggregation(options): Promise<AggregatedTimeSeriesResponse>{
-    const id = options.id;
-    const size = options.size;
-    const type = options.type; 
-
-    const promise = new Promise<AggregatedTimeSeriesResponse>((resolve, reject) => {
-      this._http.get<AggregatedTimeSeriesResponse>(this._url + "/ts/" + type + "/sensId/" + id + "/" + size).toPromise()
-        .then(res => resolve(res), error => reject(error));
-    });
-
-    return promise;
-  }
-
-  
 
   errorHandler(error: HttpErrorResponse){
     return throwError(error.message || 'server error');
