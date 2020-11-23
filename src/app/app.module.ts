@@ -8,7 +8,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { AppComponent } from "./app.component";
 import { AdminLayoutComponent } from "./layouts/admin-layout/admin-layout.component";
 
-import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
+import { NgbDatepickerModule, NgbModule } from "@ng-bootstrap/ng-bootstrap";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { ComponentsModule } from "./components/components.module";
@@ -23,6 +23,7 @@ import { SOSService } from './services/sos.service';
     NgbModule,
     RouterModule,
     AppRoutingModule,
+    NgbDatepickerModule,
     ToastrModule.forRoot()
   ],
   declarations: [AppComponent, AdminLayoutComponent],
