@@ -35,4 +35,26 @@ export class DateService {
     let result = this.mapMonthToNb[splittedLow[1]] + ' ' + splittedLow[2] + '-' + splittedHigh[2];
     return result;
   }
+
+  parseFromToDates(from, to){
+
+    let fromDate: any = Object.values(from);
+    let toDate: any = Object.values(to);
+
+    fromDate[0] = fromDate[0].toString();
+    fromDate[1] = ('0' + fromDate[1]).slice(-2);
+    fromDate[2] = ('0' + fromDate[2]).slice(-2);
+
+    toDate[0] = toDate[0].toString();
+    toDate[1] = ('0' + toDate[1]).slice(-2);
+    toDate[2] = ('0' + toDate[2]).slice(-2);
+
+    fromDate = fromDate.join('-') + ' 00:00:00';
+    toDate = toDate.join('-') + ' 00:00:00';
+
+    return {
+      fromDate: fromDate,
+      toDate: toDate
+    }
+  }
 }
