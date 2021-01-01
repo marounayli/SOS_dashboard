@@ -1,18 +1,15 @@
 import { Component, OnInit } from "@angular/core";
 import { NgbCalendar, NgbDate, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import Chart from 'chart.js';
-import { AggregatedTimeSeries } from 'src/app/models/AggregatedTimeSeries';
 import { AggragationResponse } from 'src/app/models/AggregationResponse';
 import { AggregationPayload } from 'src/app/models/AggregatioPayload';
-import { LocationResponse } from 'src/app/models/LocationResponse';
 import { Measurement } from 'src/app/models/Measurement';
-import { MeasurementResponse } from 'src/app/models/MeasurementReponse';
 import { Sensor } from 'src/app/models/Sensor';
-import { SensorResponse } from 'src/app/models/SensorResponse';
-import { TimeSeries } from 'src/app/models/TimeSeries';
+import { SOSResponse } from "src/app/models/SOSResponse";
 import { DateService } from 'src/app/services/date.service';
 import { GraphService } from 'src/app/services/graph.service';
 import { SOSService } from 'src/app/services/sos.service';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: "app-dashboard",
@@ -42,6 +39,10 @@ import { SOSService } from 'src/app/services/sos.service';
     .custom-day.faded {
       background-color: rgba(2, 117, 216, 0.5);
     }
+    
+    .custom-select {
+      color: rgba(0, 0, 0, 0.5);
+    }
   `
   ]
 })
@@ -58,7 +59,7 @@ export class DashboardComponent implements OnInit {
   public ctx;
   public types = ["min", "max", "avg", "range", "sum"]
   public selectedType: string = '';
-  public aggregationSize: any;
+  public aggregationSize: number = 0;
 
   public datasets: any = [
     [],
@@ -168,46 +169,23 @@ export class DashboardComponent implements OnInit {
   }
 
   async getAllSensors(){
-    let res: SensorResponse;
+    let res: SOSResponse;
     res = await this._sosService.getAllSensors();
     this.allSensors = res.payload;
   }
 
   async getAllLocations(){
-    let res: LocationResponse;
+    let res: SOSResponse;
     res = await this._sosService.getAllLocations();
     this.allLocations = res.payload;
   }
 
   async getAllMeasurements(){
-    let res: MeasurementResponse;
+    let res: SOSResponse;
     res = await this._sosService.getAllMeasurements();
     this.allMeasurements = res.payload;
   }
-
-  // async getAggregatedData(options, index){
-  //   let res: AggregatedTimeSeries[];
-  //   let response = await this._sosService.getAggregation(options);
-  //   res = response.payload;
-  //   this.datasets[index] = res.map(sensorData => sensorData.aggregationValue);
-  //   this.chartLabels[index] = res.map(sensorData => this._dateService.handleAggregationDate(sensorData.lowDate, sensorData.highDate));
-
-  // }
-
-  // async getSensorData(id){
-    
-  //   for(const [key, value] of Object.entries(this.typesMap)){
-  //     if(value === 0) continue;
-  //     var options = {
-  //       type: key,
-  //       size: 2,
-  //       id: id
-  //     }
-
-  //     await this.getAggregatedData(options, value);
-  //   }
-  // }
-
+  
   async getAllSensorData(id){
 
     let res: AggragationResponse;
@@ -215,7 +193,7 @@ export class DashboardComponent implements OnInit {
     let dates = this._dateService.parseFromToDates(this.fromDate, this.toDate);
 
     const options = {
-      aggregationSize: 4,
+      aggregationSize: this.aggregationSize,
       sensorId: id,
       aggregations: ['sum', 'avg', 'range', 'min', 'max'],
       startDateTime: dates.fromDate,
@@ -228,6 +206,25 @@ export class DashboardComponent implements OnInit {
     this.updateLabels(res.payload);
 
     this.updateOptions(0);
+  }
+
+  downloadZipFile(id){
+
+    let dates = this._dateService.parseFromToDates(this.fromDate, this.toDate);
+    let options = {
+      aggregationSize: this.aggregationSize,
+      sensorId: id,
+      aggregations: ['sum', 'avg', 'range', 'min', 'max'],
+      startDateTime: dates.fromDate,
+      endDateTime: dates.toDate
+    }
+     this._sosService.downloadZipFile(options).subscribe(data => {
+      const blob = new Blob([data], {
+        type: 'application/zip'
+      });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url);
+    });
   }
 
   async syncAll(){

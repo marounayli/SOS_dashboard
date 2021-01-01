@@ -60,18 +60,20 @@
                     <tr>
                        <th>SensorId</th>
                        <th>City</th>
-                       <th>Country</th>
+                       <!-- <th>Country</th> -->
                        <th>AreaCode</th>
                        <th>Type</th>
                        <th>StartDate --> EndDate</th>
+                       <th>Agg size</th>
                        <th>Plot</th>
+                       <th>Download CSV</th>
                     </tr>
                  </thead>
                  <tbody>
                     <tr *ngFor="let sensor of allSensors">
                        <td>{{sensor.sensorId}}</td>
                        <td>{{sensor.location.city}}</td>
-                       <td>{{sensor.location.country}}</td>
+                       <!-- <td>{{sensor.location.country}}</td> -->
                        <td>{{sensor.location.areacode}}</td>
                        <td>{{sensor.measurement.type}}</td>
                        <!-- <td><ngb-datepicker #dp (navigate)="date = $event.next"></ngb-datepicker></td> -->
@@ -130,7 +132,9 @@
                            </div>
                          </form> 
                        </td>
+                       <td><input type="number"  class="form-control" min="0" [(ngModel)]="aggregationSize" style="width: 70px;"></td>
                        <td><button class="btn" (click)="getAllSensorData(sensor.sensorId);plotClicked=true; clickedSensor=sensor.sensorId" style="cursor: pointer;"><i class="tim-icons icon-chart-bar-32 text-success"></i></button></td>
+                       <td><button class="btn" (click)="downloadZipFile(sensor.sensorId);clickedSensor=sensor.sensorId" style="cursor: pointer;"><i class="tim-icons icon-minimal-down text-success"></i></button></td>
                     </tr>
                  </tbody>
               </table>
